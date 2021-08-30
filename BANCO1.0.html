@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+	<meta charset="utf-8">
+	<title></title>
+	<style type="text/css">
+		#erroNome, #erroValor{
+			margin-left:1%;
+            border-radius: 5px 5px 5px 5px;
+            background: red;
+		}
+	</style>
+</head>
+<body>
+
+	<h1>BANCO</h1> 
+	<p>Nome: 
+		<input type="text" id="nome" autofocus><span id="erroNome"></span> 
+	</p> 
+	<p>Valor R$: 
+		<input type="text" id="valor"><span id="erroValor"></span> 
+	</p>
+	<!--<p>CPF ou CNPJ:
+		<input class="required" type="text" id="documento" name="documento" onkeyup="expressao_cpf_telefone();" />
+	</p>--> 
+	<input type="button" value="ADICIONAR CLIENTE" id="btAdicionar" onclick="adicionarClientes();">
+	<input type="button" value="LISTAR TODOS OS CLIENTES" id="btListar" onclick="listarClientes();"> 
+	<input type="button" value="FILTRAR CLIENTES POR SALDO" id="btFiltrar" onclick="filtrarClientes();">
+	<input type="button" value="CONSULTAR O CLIENTE POR NOME" onclick="acharCliente();"> 
+	<input type="button" value="ADICIONAR DINHEIRO" onclick="adicionarDinheiro();">
+	<input type="button" value="TRANFERIR DINHEIRO" onclick="tranferirDinheiro();">
+	<pre id="outLista"></pre> 
+
+	<script type="text/javascript">
+		
+		var clientes = []; 
+		var numero = 0;
+		function adicionarClientes() {
+			
+			var nome = document.getElementById("nome"); 
+			var valor = document.getElementById("valor"); 
+			var cliente = nome.value; 
+			var dinheiro = Number(valor.value);  
+
+			if (cliente == "" || dinheiro == 0 || isNaN(dinheiro)) { 
+				
+				alert("Informe corretamente os dados"); 
+				
+				nome.focus(); 
+				
+				return; 
+			}
+			
+			gerarNumConta();
+			
+			function gerarNumConta(){
+				var numero = parseInt(Math.floor(Math.random()*9999) + 1);			
+				
+				for (var i = 0; i < clientes.length; i++) { 
+					
+					if (clientes[i].numero == numero) { 
+						
+						adicionarClientes();
+					}
+				}
+				
+				clientes.push({
+					cliente: cliente, dinheiro: dinheiro, numero: numero 
+				});
+			}
+
+			  
+			nome.value = ""; 
+			valor.value = ""; 
+			nome.focus(); 
+			listarClientes();  
+		} 
+
+		
+
+		function listarClientes() { 
+			
+			if (clientes.length == 0) { 
+				
+				alert("Não há clientes na lista"); 
+				
+				return; 
+			} 
+			var lista = "";  
+
+			for (var i = 0; i < clientes.length; i++) { 
+				
+				lista += "CLIENTE " + clientes[i].cliente + " SALDO - R$: " + clientes[i].dinheiro.toFixed(2) + " NÚMERO DA CONTA " + clientes[i].numero + "\n"; 
+			} 
+			document.getElementById("outLista").textContent = lista; 
+		} 
+		
+
+		function filtrarClientes() {  
+			var maximo = Number(prompt("Qual é saldo do cliente?")); 
+			
+			if (maximo == 0 || isNaN(maximo)) { 
+				return; 
+			}  
+			var lista = ""; 
+
+			for (var i = 0; i < clientes.length; i++) { 
+				
+				if (clientes[i].dinheiro <= maximo) { 
+					
+					lista += "CLIENTE " + clientes[i].cliente + " SALDO - R$: " + clientes[i].dinheiro.toFixed(2) + " NÚMERO DA CONTA " + clientes[i].numero + "\n";
+				} 
+			} 
+
+			var outLista = document.getElementById("outLista");  
+
+			if (lista == "") { 
+				outLista.textContent = "Não há clientes com preço até R$ " + maximo.toFixed(2); 
+			} 
+			
+			else { 
+				outLista.textContent = "Clientes até R$ " + maximo.toFixed(2) + "\n------------------------\n" + lista; 
+			} 
+		}
+
+		function acharCliente() {
+			var cliente1 = prompt("Qual é o nome do cliente que deseja pesquisar?"); 
+			
+			if (cliente1 == "" ) { 
+				
+				alert("Digite algum cliente!!!");
+				
+				return; 
+			}
+			
+			var lista = ""; 
+
+			for (var i = 0; i < clientes.length; i++) { 
+				
+				if (clientes[i].cliente == cliente1) { 
+					
+					lista += "CLIENTE " + clientes[i].cliente + " SALDO - R$: " + clientes[i].dinheiro.toFixed(2) + " NÚMERO DA CONTA " + clientes[i].numero + "\n";
+				}
+			}
+			
+			document.getElementById("outLista").textContent = lista;
+			
+			if (lista == "") {
+				
+				alert("Não tem nenhum cliente com esse nome " + cliente1);
+				
+				document.getElementById("outLista").textContent = "Não há clientes com esse nome " + cliente1;
+			}
+		}
+
+		function adicionarDinheiro(){
+			var cliente2 = prompt("Qual é o número Cliente?");
+
+			for (var i = 0; i < clientes.length; i++) { 
+				
+				if (clientes[i].numero == cliente2) { 
+					
+					if (clientes[i].dinheiro.toFixed(2) < 0) {
+						
+						window.alert("O CLIENTE " + clientes[i].cliente + " ESTÁ DEVENDO COM VALOR " + clientes[i].dinheiro.toFixed(2));
+						
+						window.alert("SERÁ DESCONTADO NO SEU DEPOSITO O VALOR " + clientes[i].dinheiro.toFixed(2));
+						
+						var addDinheiro = parseFloat(prompt("Qual é o valor que quer adicionar?"));
+						
+						var monei = parseFloat(clientes[i].dinheiro);
+						
+						clientes[i].dinheiro = monei + addDinheiro;
+						
+						alert("O CLIENTE " + clientes[i].cliente + " ESTÁ COM O SALDO " + clientes[i].dinheiro.toFixed(2));
+						
+						outLista.textContent = "O CLIENTE " + clientes[i].cliente + " ESTÁ COM O SALDO " + clientes[i].dinheiro.toFixed(2);
+						
+						return;
+					}
+					
+					else if (clientes[i].dinheiro.toFixed(2) > 0) {
+						
+						window.alert("O CLIENTE " + clientes[i].cliente + " ESTÁ POSITIVO COM VALOR " + clientes[i].dinheiro.toFixed(2));
+						
+						var addDinheiro = parseFloat(prompt("Qual é o valor que quer adicionar?"));
+						
+						var monei = parseFloat(clientes[i].dinheiro);
+						
+						clientes[i].dinheiro = monei + addDinheiro;
+						
+						alert("O CLIENTE " + clientes[i].cliente + " ESTÁ COM O SALDO " + clientes[i].dinheiro.toFixed(2));
+						
+						outLista.textContent = "O CLIENTE " + clientes[i].cliente + " ESTÁ COM O SALDO " + clientes[i].dinheiro.toFixed(2);
+						
+						return;
+					}
+				} 
+			}
+		}
+		function tranferirDinheiro(){
+			var cliente3 = prompt("Qual é o número da sua conta?");
+			var calc = 0;
+			var monei = 0;
+			valTransferencia = 0;
+			
+			for (var i = 0; i < clientes.length; i++) {
+				
+				if (clientes[i].numero == cliente3) {
+					clienteTranf = clientes[i].dinheiro;
+					if (clientes[i].dinheiro.toFixed(2) < 0) {
+						
+						window.alert("O CLIENTE " + clientes[i].cliente + " ESTÁ COM ESSE VALOR " + clientes[i].dinheiro.toFixed(2) + " E NÃO PODE FAZER TRANSFERENCIA");
+						return;
+					}
+					
+					else if (clientes[i].dinheiro.toFixed(2) > 0) {
+						
+						window.alert("O CLIENTE " + clientes[i].cliente + " ESTÁ COM SALDO DE " + clientes[i].dinheiro.toFixed(2) + " E ESTÁ ADEPITO A FAZER TRANSFERENCIA");
+						
+						window.alert("AVISO!!!\nSE FOR TRANFERIR VALOR MAIOR QUE O SALDO DISPONIVEL DO \nUSUARIO: " + clientes[i].cliente + " \nVALOR: " + clientes[i].dinheiro.toFixed(2) + " \nA OPERAÇÃO NÃO SERÁ FEITA");
+
+						valTransferencia = parseFloat(prompt("Digite o valor que será tranferido da sua conta"));
+
+						if (valTransferencia > clienteTranf) {
+										window.alert("EU DISSE QUE SE NÃO DÁ PRA TRANFERIR MAIOR QUE SEU SALDO");
+										return 0;
+						}
+
+						clientes[i].dinheiro = clienteTranf - valTransferencia;
+
+						
+						var recebedoro = prompt("Qual é o número do cliente que vai receber a transferencia?");
+						
+						for (var i = 0; i < clientes.length; i++) {
+
+							if (cliente3 == recebedoro) {
+								window.alert("Englaçadão você em");
+							}
+							
+							if (clientes[i].numero == recebedoro) {
+								
+								if (clientes[i].dinheiro.toFixed(2) < 0) {
+									
+									window.alert("O CLIENTE " + clientes[i].cliente + " ESTÁ COM SALDO NEGATIVO " + clientes[i].dinheiro.toFixed(2) + " E SERÁ DESCONTADO NA TRANSFERENCIA O VALOR SER DEPOSITADO");					
+
+
+									monei = parseFloat(clientes[i].dinheiro);
+									
+									calc = monei + valTransferencia;
+									
+									if (calc < 0) {
+										window.alert("O CLIENTE: " + clientes[i].cliente + " AINDA ESTA COM SALDO NEGATIVO" + "\nSALDO: " + calc);
+										clientes[i].dinheiro = calc;
+									}
+									
+									if (calc >= 0) {
+										window.alert("O CLIENTE: " + clientes[i].cliente + " ESTÁ COM SALDO POSITVO"  + "\nSALDO: " + calc);
+										clientes[i].dinheiro = calc;
+									}
+									
+								}
+								if (clientes[i].dinheiro.toFixed(2) > 0) {
+									
+									window.alert("O CLIENTE " + clientes[i].cliente + " ESTÁ COM SALDO POSITIVO " + clientes[i].dinheiro.toFixed(2));
+
+									valTransferencia = parseFloat(prompt("Digite o valor que será tranferido para conta \n" + "(" + clientes[i].numero + "), " + "(" + clientes[i].cliente + "), " + "(" + clientes[i].dinheiro.toFixed(2) + ")"));
+
+									monei = parseFloat(clientes[i].dinheiro);
+
+									calc = monei + valTransferencia;
+
+									window.alert("O CLIENTE: " + clientes[i].cliente + " ESTÁ COM SALDO POSITVO"  + "\nSALDO: " + calc);
+									
+									clientes[i].dinheiro = calc;
+
+								}
+							}
+						}
+					}
+
+				}
+				/*else{
+					window.alert("NÃO A ESSa CONTA " + cliente3);
+				}*/
+			}
+		}
+		function expressao_cpf_telefone(masks, max, event) {
+	        var c = event.target;
+	        var v = c.value.replace(/\D/g, '');
+	        var m = c.value.length > max ? 1 : 0;
+	        VMasker(c).unMask();
+	        VMasker(c).maskPattern(masks[m]);
+	        c.value = VMasker.toPattern(v, masks[m]);
+    	}
+
+	</script>
+
+</body>
+</html>
